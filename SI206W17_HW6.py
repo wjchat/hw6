@@ -32,7 +32,14 @@ class Student():
 
     # Define the additional method here
     def write_programs(self, x = 1):
-        self.num_programs += x
+        self.num_programs += x #adds x to num_programs for self
+
+    def programming_productivity(self): #returns programs/years
+        return self.num_programs/self.years_UM
+
+    def filterer(self): #returns names with length longer than 5
+        if len(self.name) >= 5:
+            return self.name
     
 
 #### DONE WITH STUDENT CLASS DEFINITION
@@ -45,7 +52,9 @@ print(pst)  # This should print: My name is Jay, and I've been at UMich for abou
 pst.shout("I'm doing awesome on this problem set.")  # This should print: I'm doing awesome on this problem set.
 
 ## Feel free to add more testing code here to help you understand the class definition, especially to try out your write_programs method...
-
+print(pst.num_programs) #to test write_programs
+pst.write_programs(3)
+print(pst.num_programs)
 
 print("===========")
 
@@ -58,6 +67,11 @@ print("\n\n***** Problem 2 *****")
 ## The function should return the new list of accumulated -- mapped! -- values.
 ## HINT: you should be able to write this in 5 lines of code or fewer! 
 
+def personal_map(fuct = (), lst = []):
+    newlist = []
+    for x in lst:
+        newlist.append(fuct(x))
+    return newlist
 
 
 
@@ -76,6 +90,7 @@ def access_third_elem(seq):
 ## End
 
 # Write your equivalent function and assignment statement here
+sample_func = lambda x: x[2] #lamda function accesses third letter
 
 
 ## [PROBLEM 4]
@@ -88,11 +103,12 @@ programs_written = [10, 500, 20, 131, 46]
 ## End provided code
 
 # Given that provided code, write one line of code to create a zip iterator instance saved in a variable called student_tups, here:
+student_tups = zip(names, seniority, programs_written) #zips up the lists!
 
 
 # Then write a line of code to cast the iterator to a list (it should end up as a list of tuples). Save that list in a variable called student_tups_list.
-
-
+student_tups_list = [x for x in student_tups] #list comprehension is awesome
+print(student_tups_list)
 ## You can test this out with any code you like here, and similar below other problems, but make sure to comment out any code that uses up the iterator in order to pass the tests!
     
 
@@ -102,6 +118,7 @@ print("\n\n***** Problem 5 *****")
 # Use a list comprehension to create a list of Student instances out of the student_tups list you just created in Problem 2, and save that list in a variable called programmers. You should make sure you pass these tests before continuing, as you'll need this list for problems later on!
 
 
+programmers = [Student(x[0], x[1], x[2]) for x in student_tups_list] 
 
 ## [PROBLEM 6]
 print("\n\n***** Problem 6 *****")
@@ -109,8 +126,10 @@ print("\n\n***** Problem 6 *****")
 # A Student's programming_productivity is defined as that student's number of programs written divided by the years they have been at UMich.
 
 # Use the Python map function on the programmers list you just created, in order to create an map instance iterator of numbers representing the productivity of each student. Save the map iterator in a variable called prod_iter.
+prod_iter = map(Student.programming_productivity, programmers)
 
 ## Write code to cast that iterator to a list. Save that list in the variable prod_list.
+prod_list = [x for x in prod_iter]
 
 ## You may add a method to the Student class if you wish in order to do this, but you do not need to. (If you do, make sure you do not create any syntax errors that keep code/tests from running!)
 
@@ -119,6 +138,8 @@ print("\n\n***** Problem 6 *****")
 ## [PROBLEM 7]
 print("\n\n***** Problem 7 *****")
 # Create a list of tuples wherein each tuple has a student's name and productivity value. Save the list of tuples in a variable called names_and_productivities. To do this, you should use a list comprehension (you may also use the zip function, and you may use any variables you have already created).
+names_and_prd = zip(names, prod_list)
+names_and_productivities = [x for x in names_and_prd]
 
 ## But be careful that if you use answers from previous problems, you use the LISTs you generated, so that all your tests can still pass and you avoid confusion!
 
@@ -130,15 +151,19 @@ print("\n\n***** Problem 8 *****")
 
 
 
+long_names = filter(Student.filterer, programmers)
+
+
 ## Then write code to cast the value of long_names to a list and save it in the variable long_names_list. 
 
+long_names_list = [x for x in long_names]
 
 
 ## [PROBLEM 9]
 print("\n\n***** Problem 9 *****")
 
 # Use a list comprehension to generate a LIST of just the names of those Student instances whose name is longer than their seniority (i.e., ["Albert", "Mai", "Dinesh", "Euijin"]). Assign it to a variable called names_with_not_too_much_seniority.
-
+names_with_not_too_much_seniority = [x.name for x in programmers if len(x.name) > x.years_UM]
 ## Note that you can use another list you have already created for this problem.
 
 
@@ -151,6 +176,7 @@ print("\n\n***** Problem 10 *****")
 
 ## Define a generator called len_check which accepts a generator of file lines and returns a generator object of all the lines it's accepted whose length is longer than 40 characters.
 
+
 ## Finally, write a function called main_filterer that accepts a list of filenames (strings), and returns a generator of all the lines in those files that are longer than 40 characters. The function should invoke the other function and generator, readfiles and len_check.
 
 ## There is a test for this but an even more fun test is to uncomment the code below which invokes the main_filterer function and prints each line from the generator without blank lines in between (that's what the comma is doing).
@@ -160,19 +186,31 @@ print("\n\n***** Problem 10 *****")
 ## We have provided files samplehw6_1.txt and samplehw6_2.txt for your use for this problem, which hopefully you have downloaded, so you can test with those file names! The test below also relies upon these files. Of course, you could also create other files for testing.
 
 # Define readfiles (make sure to close the file reference in the right place)
+def readfiles(files):
+    for f in files:
+        fileref = open(f, 'r')
+        for line in fileref:
+            yield line
+        fileref.close()
 
 
 # Define len_check
-
+def len_check(lines):
+    for line in lines:
+        if len(line) > 40:
+            yield line
 
 # Define main_filterer
+def main_filterer(fnames):
+    lines = readfiles(fnames)
+    return (len_check(lines))
 
 
 
 ## Uncomment this code to test so you can see easily what results from your code. DO uncomment it. DO NOT delete or change it. (You can add other code above while you work, of course.)
-# provided_file_names = ["samplehw6_1.txt","samplehw6_2.txt"]
-# for ln in main_filterer(provided_file_names):
-#     print(ln.rstrip('\n'), end=" ")
+provided_file_names = ["samplehw6_1.txt","samplehw6_2.txt"]
+for ln in main_filterer(provided_file_names):
+    print(ln.rstrip('\n'), end=" ")
 #####
 
 
