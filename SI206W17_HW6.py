@@ -31,6 +31,8 @@ class Student():
         return this_Student.years_UM
 
     # Define the additional method here
+    def write_programs(self, x = 1):
+        self.num_programs += x
     
 
 #### DONE WITH STUDENT CLASS DEFINITION
